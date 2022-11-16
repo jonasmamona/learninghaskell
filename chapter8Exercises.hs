@@ -59,5 +59,8 @@ digits :: Int -> [Int]
 digits = map (read . (:[])) . show
 
 wordNumber :: Int -> String
-wordNumber x = concatMap digitToWord (digits x)
+wordNumber = concat . intersperse "-" . map digitToWord . digits
 
+
+-- >>> fmap (+2) [1,2,3,4,5,6]
+-- [3,4,5,6,7,8]
