@@ -145,3 +145,39 @@ shouldEqual = ["Tyger Tyger, burning bright", "In the forests of the night", "Wh
 
 -- >>>"wallfish" ++ dropWhile (/= ' ') "sheryl wants fun"
 -- "wallfish wants fun"
+
+mySqr = [1,4,9,16,25,36,49,64,81,100]
+mySqrRemainderEven = [x | x <- mySqr, rem x 2 == 0]
+mySqrBetween = [(x, y) | x <- mySqr,y <- mySqr,x < 50, y > 50]
+mySqrOnlyFive = take 5 [ (x, y) | x <- mySqr,y <- mySqr, x < 50, y > 50 ]
+
+someUpperCase = "This Phrase Has Some Uppercase Letters"
+
+onlyLowerCase = [x | x <- someUpperCase, elem x (['a'..'z'] ++ [' '])]
+
+needsToBecomeAcronym = "National A Space Agency"
+
+acronymGenerator xs = [x | x <- xs, elem x ['A'..'Z']]
+
+-- >>>onlyLowerCase
+-- "his hrase as ome ppercase etters"
+
+-- >>> acronymGenerator	needsToBecomeAcronym
+-- "NASA"
+
+-- >>> acronymGenerator "Self Contained Underwater Breathing Apparatus"
+-- "SCUBA"
+
+mySquare = [x^2 | x <- [1..5]]
+myCube = [x^3 | x <- [1..5]]
+
+tupleFromBoth = [(x,y) | x <- mySquare, x < 50, y <- myCube, y < 50]
+
+-- >>>tupleFromBoth
+-- [(1,1),(1,8),(1,27),(4,1),(4,8),(4,27),(9,1),(9,8),(9,27),(16,1),(16,8),(16,27),(25,1),(25,8),(25,27)]
+
+-- >>>length tupleFromBoth 
+-- 15
+
+integerList :: [Int]
+integerList = [1..10] :: [Int]
