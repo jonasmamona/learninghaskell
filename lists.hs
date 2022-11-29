@@ -1,5 +1,7 @@
 module Lists where
 
+import Data.Bool
+
 myHead :: [a] -> a
 myHead [] = error "cannot find head of empty list"
 myHead (x : _) = x
@@ -181,3 +183,61 @@ tupleFromBoth = [(x,y) | x <- mySquare, x < 50, y <- myCube, y < 50]
 
 integerList :: [Int]
 integerList = [1..10] :: [Int]
+
+mySum :: [Int] -> Int
+mySum [] = 0
+mySum (x:xs) = x + mySum xs
+
+mySumFoldr :: [Int] -> Int
+mySumFoldr [] = 0
+mySumFoldr xs = foldr (+) 0 xs
+
+myMap xs = map (+1) xs 
+
+-- >>>myMap [1,2,3]
+-- [2,3,4]
+
+-- >>> map (take 3) [[1..5], [1..5], [1..5]]
+-- [[1,2,3],[1,2,3],[1,2,3]]
+
+-- >>> map (\x -> x+1) [1..5]
+-- [2,3,4,5,6]
+
+-- >>> map (\x -> x ++ "s") ["jona", "treva", "roupa"]
+-- ["jonas","trevas","roupas"]
+
+itIsMystery xs = map (\x -> elem x "aeiou") xs
+
+-- >>>itIsMystery "jonas"
+-- [False,True,False,True,False]
+
+foldBool [] _ = []
+foldBool xs truthValue = map (\x -> bool x 0 truthValue) xs
+
+filterEven [] = []
+filterEven xs = filter (\x -> rem x 2 == 0) xs
+
+filterOdd [] = []
+filterOdd xs = filter (\x -> rem x 2 /= 0) xs
+
+filterEvenComprehension [] = []
+filterEvenComprehension xs = [x | x <- xs, (\x -> rem x 2 == 0) x]
+
+filterMultiplesOf3 [] = []
+filterMultiplesOf3 xs = filter (\x -> rem x 3 == 0) xs
+
+countingMultiplesOfThree = length . filterMultiplesOf3
+
+myFilter = filter (\x -> x `notElem` ["the", "a", "an"]) . words
+
+myZip _ [] = []
+myZip [] _ = []
+myZip (x:xs) (y:ys) = (x,y) : myZip xs ys
+
+myZipWith _ _ [] = []
+myZipWith _ [] _ = []
+myZipWith f (x:xs) (y:ys) = f x y : myZipWith f xs ys
+
+myZipWithMyZipWith _ [] = []
+myZipWithMyZipWith [] _ = []
+myZipWithMyZipWith xs ys = myZipWith (,) xs ys
