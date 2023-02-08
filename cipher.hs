@@ -1,7 +1,6 @@
 module Cipher where
 
 import Data.Char
-import Control.Monad.Trans.Cont (shift)
 
 shiftCharsRight :: Int -> Char -> Char
 shiftCharsRight n x = chr (specialOrd n x) 
