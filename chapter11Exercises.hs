@@ -31,4 +31,8 @@ checkAnswer = substituteRecursively testPhrase testKeyword == "ALLY AL LY ALLY"
 getValidationShiftValueList = convertSubstitutionToCypherShiftValues $ substituteRecursively testPhrase testKeyword
 
 vigenereCipher :: String -> String -> String
-vigenereCipher input keyword = foldr (\x acc -> if (getShiftValues input keyword !! length acc - 1) == (-33) then " " else shiftCharsRight (getShiftValues input keyword !! length acc - 1) x : acc) [] input
+vigenereCipher input keyword = zipWith (flip shiftCharsRight) input $ getShiftValues input keyword
+
+-- isSubseqOf :: (Eq a) => [a] -> [a] -> Bool
+-- isSubseqOf [] _ = True
+-- isSubseqOf a@(x:xs) b@(y:ys) = 

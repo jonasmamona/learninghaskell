@@ -3,6 +3,7 @@ module Cipher where
 import Data.Char
 
 shiftCharsRight :: Int -> Char -> Char
+shiftCharsRight _ ' ' = ' '
 shiftCharsRight n x = chr (specialOrd n x) 
     where 
         specialOrd n x
@@ -10,7 +11,8 @@ shiftCharsRight n x = chr (specialOrd n x)
             | otherwise = ord x + n
 
 shiftCharsLeft :: Int -> Char -> Char
-shiftCharsLeft n x = chr (specialOrd n x) 
+shiftCharsLeft _ ' ' = ' '
+shiftCharsLeft n x = if ord x == (-33) then ' ' else chr (specialOrd n x) 
     where 
         specialOrd n x
             | ord x - n < 97 = (ord x - n) + 26
