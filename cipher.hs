@@ -19,6 +19,5 @@ shiftCharsLeft n x = chr (specialOrd n x)
 caesarCipher :: [Char] -> Int -> [Char]
 caesarCipher input shiftValue = map (shiftCharsRight shiftValue) input
 
-
 reverseCaesarCipher :: [Char] -> Int -> [Char]
 reverseCaesarCipher input shiftValue = map (shiftCharsLeft shiftValue) input
