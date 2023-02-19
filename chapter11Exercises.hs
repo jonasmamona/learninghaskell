@@ -1,7 +1,7 @@
 module Chapter11Exercises where
-import Data.List ( maximumBy, elemIndex )
+import Data.List ( maximumBy, elemIndex, group, sort, sortOn )
 import Data.Function ( on )    
-import Data.Char ( ord, isUpper, toLower )
+import Data.Char ( ord, isUpper, toLower, isSpace )
 import Cipher (shiftCharsRight)
 import qualified Data.Char as Char
 import Lists (mySplit)
@@ -111,7 +111,7 @@ convo :: [String]
 convo = ["Wanna play 20 questions","Ya","U 1st haha","Lol ok. Have u ever tasted alcohol","Lol ya","Wow ur cool haha. Ur turn","Ok. Do u think I am pretty Lol","Lol ya","Just making sure rofl ur turn"]
 
 message :: String
-message = "My name is jonas"
+message = "My name is jonass"
 
 convertMessageToTaps :: String -> [(Key, Presses)]
 convertMessageToTaps = foldr (\x acc -> reverseTaps x ++ acc) []
@@ -125,6 +125,13 @@ convertConversationToTaps = map convertMessageToTaps
 calculateCostForLetter :: Char -> Presses
 calculateCostForLetter letter = foldr (\(x,y) acc -> acc + y) 0 (reverseTaps letter)
 
-mostPopularLetterAndCost :: String -> [(Char, Presses)]
-mostPopularLetterAndCost string =  map (\x -> (x, calculateCostForLetter x)) string
+mostPopularLetter phrase = (last $ sortOn length $ group $ sort $ filter (not . isSpace) $ map toLower phrase) !! 0
+
+mostPopularLetterAndCost :: String -> (Char, Presses)
+mostPopularLetterAndCost string = (thisMostPopularLetter, calculateCostForLetter thisMostPopularLetter) where thisMostPopularLetter = mostPopularLetter string
+
+convertConversationToLongPhrase :: Foldable t => t [Char] -> [Char]
+convertConversationToLongPhrase = foldr (\x acc -> x ++ " " ++ acc) []
+
+coolestWord conversation = (last $ group $ sort $ words $ map toLower $ convertConversationToLongPhrase conversation) !! 0
 
