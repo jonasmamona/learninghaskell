@@ -135,3 +135,12 @@ convertConversationToLongPhrase = foldr (\x acc -> x ++ " " ++ acc) []
 
 coolestWord conversation = (last $ group $ sort $ words $ map toLower $ convertConversationToLongPhrase conversation) !! 0
 
+data Expr = Lit Integer | Add Expr Expr deriving (Show)
+
+eval :: Expr -> Integer
+eval (Lit n) = n
+eval (Add x y) = eval x + eval y
+
+printExpr :: Expr -> String
+printExpr (Lit n) = show n
+printExpr (Add x y) = printExpr x ++ " + " ++ printExpr y
