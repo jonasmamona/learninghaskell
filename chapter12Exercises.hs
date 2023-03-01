@@ -101,3 +101,81 @@ mkWord :: String -> Maybe Word'
 mkWord input = if fst result > snd result then Just (Word' input) else Nothing
   where
     result = getCountOfVowelsAndConsonants input
+
+
+data Nat = Zero | Succ Nat deriving (Eq, Show)
+
+natToInteger :: Nat -> Integer
+natToInteger Zero = 0
+natToInteger (Succ number) = 1 + natToInteger number
+
+integerToNat :: Integer -> Nat
+integerToNat 0 = Zero
+integerToNat number = Succ (integerToNat (number - 1))
+
+isJust' :: Maybe a -> Bool
+isJust' Nothing = False
+isJust' (Just a) = True
+
+isNothing' :: Maybe a -> Bool
+isNothing' (Just a) = False
+isNothing' Nothing = True
+
+mayybe :: b -> (a -> b) -> Maybe a -> b
+mayybe b _ Nothing = b
+mayybe b f (Just a) = f a
+
+fromMaybe' :: a -> Maybe a -> a
+fromMaybe' a Nothing = mayybe a id Nothing
+fromMaybe' a (Just b) = mayybe a id (Just b)
+
+listToMaybe' :: [a] -> Maybe a
+listToMaybe' [] = Nothing
+listToMaybe' (x:xs) = Just x
+
+maybeToList' :: Maybe a -> [a]
+maybeToList' Nothing = []
+maybeToList' (Just a) = [a]
+
+catMaybes' :: [Maybe a] -> [a]
+catMaybes' items = go items [] 
+  where 
+    go :: [Maybe a] -> [a] -> [a]
+    go [] acc = acc
+    go (x:xs) acc =
+      case x of
+        Nothing -> go xs acc
+        Just x -> go xs (acc ++ [x])
+
+flipMaybe' :: [Maybe a] -> Maybe [a]
+flipMaybe' list = Just (catMaybes' list)
+
+lefts' :: [Either a b] -> [a]
+lefts' = foldr (\x acc -> case x of
+    Left a -> a : acc
+    Right _ -> acc
+  ) []
+
+rights' :: [Either a b] -> [b]
+rights' = foldr (\x acc -> case x of
+    Right a -> a : acc
+    Left _ -> acc
+  ) []
+
+partitionEithers' :: [Either a b] -> ([a],[b])
+partitionEithers' list = (lefts' list, rights' list)
+
+eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
+eitherMaybe' f a = 
+  case a of
+    Right a -> Just (f a)
+    Left _ -> Nothing
+
+either' :: (a -> c) -> (b -> c) -> Either a b -> c
+either' f g a =
+  case a of
+    Left a -> f a
+    Right a -> g a
+
+eitherMaybe'' :: (b -> c) -> Either a b -> Maybe c
+eitherMaybe'' f = either' (const Nothing) (Just . f)
