@@ -1,5 +1,6 @@
 module Chapter12Exercises where
 
+import Data.List
 import Data.Maybe
 
 ifEvenAdd2 :: Integer -> Maybe Integer
@@ -102,7 +103,6 @@ mkWord input = if fst result > snd result then Just (Word' input) else Nothing
   where
     result = getCountOfVowelsAndConsonants input
 
-
 data Nat = Zero | Succ Nat deriving (Eq, Show)
 
 natToInteger :: Nat -> Integer
@@ -131,18 +131,18 @@ fromMaybe' a (Just b) = mayybe a id (Just b)
 
 listToMaybe' :: [a] -> Maybe a
 listToMaybe' [] = Nothing
-listToMaybe' (x:xs) = Just x
+listToMaybe' (x : xs) = Just x
 
 maybeToList' :: Maybe a -> [a]
 maybeToList' Nothing = []
 maybeToList' (Just a) = [a]
 
 catMaybes' :: [Maybe a] -> [a]
-catMaybes' items = go items [] 
-  where 
+catMaybes' items = go items []
+  where
     go :: [Maybe a] -> [a] -> [a]
     go [] acc = acc
-    go (x:xs) acc =
+    go (x : xs) acc =
       case x of
         Nothing -> go xs acc
         Just x -> go xs (acc ++ [x])
@@ -151,22 +151,28 @@ flipMaybe' :: [Maybe a] -> Maybe [a]
 flipMaybe' list = Just (catMaybes' list)
 
 lefts' :: [Either a b] -> [a]
-lefts' = foldr (\x acc -> case x of
-    Left a -> a : acc
-    Right _ -> acc
-  ) []
+lefts' =
+  foldr
+    ( \x acc -> case x of
+        Left a -> a : acc
+        Right _ -> acc
+    )
+    []
 
 rights' :: [Either a b] -> [b]
-rights' = foldr (\x acc -> case x of
-    Right a -> a : acc
-    Left _ -> acc
-  ) []
+rights' =
+  foldr
+    ( \x acc -> case x of
+        Right a -> a : acc
+        Left _ -> acc
+    )
+    []
 
-partitionEithers' :: [Either a b] -> ([a],[b])
+partitionEithers' :: [Either a b] -> ([a], [b])
 partitionEithers' list = (lefts' list, rights' list)
 
 eitherMaybe' :: (b -> c) -> Either a b -> Maybe c
-eitherMaybe' f a = 
+eitherMaybe' f a =
   case a of
     Right a -> Just (f a)
     Left _ -> Nothing
@@ -179,3 +185,29 @@ either' f g a =
 
 eitherMaybe'' :: (b -> c) -> Either a b -> Maybe c
 eitherMaybe'' f = either' (const Nothing) (Just . f)
+
+myIterate :: (a -> a) -> a -> [a]
+myIterate f a = a : myIterate f (f a)
+
+myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+myUnfoldr f a =
+  case f a of
+    Nothing -> []
+    Just (x, y) -> x : myUnfoldr f y
+
+betterIterate :: (a -> a) -> a -> [a]
+betterIterate f = myUnfoldr (\x -> Just (x, f x))
+
+data BinaryTree a = Leaf | Node (BinaryTree a) a (BinaryTree a) deriving (Eq, Ord, Show)
+
+unfoldTree :: (a -> Maybe (a, b, a)) -> a -> BinaryTree b
+unfoldTree f a = case f a of
+  Nothing -> Leaf
+  Just (x, y, z) -> Node (unfoldTree f x) y (unfoldTree f z)
+
+treeBuild :: Integer -> BinaryTree Integer
+treeBuild n = unfoldTree f 0
+  where 
+    f x 
+      | x == n = Nothing
+      | otherwise = Just (x+1, x, x+1)
