@@ -43,7 +43,7 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 bindir     = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\bin"
-libdir     = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7\\addition-0.1.0.0-H5Pu9zstz8a22L5h7Gjghp"
+libdir     = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7\\addition-0.1.0.0-5nKBGGeohsa8j75yAatbQd"
 dynlibdir  = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7"
 datadir    = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\share\\x86_64-windows-ghc-9.2.7\\addition-0.1.0.0"
 libexecdir = "Z:\\Documents\\GitHub\\learninghaskell\\chapter14\\.stack-work\\install\\eeb48a36\\libexec\\x86_64-windows-ghc-9.2.7\\addition-0.1.0.0"

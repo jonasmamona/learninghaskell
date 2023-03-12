@@ -1,6 +1,8 @@
 module Addition where
 
 import Test.Hspec
+import Test.QuickCheck
+import Data.Bool (Bool)
 
 dividedBy :: Integral a => a -> a -> (a,a)
 dividedBy num denom = go num denom 0
@@ -16,6 +18,34 @@ myMultiply a = go a 0
       | counter == 0 = acc
       | otherwise = go x (acc + x) (counter - 1)
 
+oneThroughThree :: Gen Int
+oneThroughThree = elements [1,2,3]
+
+genBool :: Gen Bool
+genBool = choose (False, True)
+
+genBool' :: Gen Bool
+genBool' = elements [False, True]
+
+genOrdering :: Gen Ordering
+genOrdering = elements [LT, EQ, GT]
+
+genChar :: Gen Char
+genChar = elements ['a'..'z']
+
+genTuple :: (Arbitrary a, Arbitrary b) => Gen (a,b)
+genTuple = do 
+  a <- arbitrary
+  b <- arbitrary
+  return (a,b)
+
+
+prop_additionGreater :: Int -> Bool
+prop_additionGreater x = x + 1 > x
+
+runQc :: IO ()
+runQc = quickCheck prop_additionGreater
+
 main :: IO ()
 main = hspec $ do
   describe "Addition" $ do
@@ -25,3 +55,5 @@ main = hspec $ do
       myMultiply 10 5 `shouldBe` 50
     it "12321312 times 21312 is 262591801344" $ do
       myMultiply 12321312 21312 `shouldBe` 262591801344
+    it "x + 1 is always greater than x" $ do
+      property $ \x -> x + 1 > (x :: Int)
