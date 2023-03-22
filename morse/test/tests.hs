@@ -1,24 +1,14 @@
 import Control.Monad
 import Data.Monoid
 import Test.QuickCheck
-
-
-
-
-type Verb = String 
-type Adjective  = String
-type Adverb = String
-type Noun = String
-type Exclamation = String
-
-madlibbin' :: Exclamation -> Adverb -> Noun -> Adjective -> String
-madlibbin' e adv noun adj = e <> "! he said " <> adv <> " as he jumped into his car " <> noun <> " and drove off with his " <> adj <> " wife."
-
-madlibbinBetter' :: Exclamation -> Adverb -> Noun -> Adjective -> String
-madlibbinBetter' e adv noun adj = mconcat [e, "! he said " , adv , " as he jumped into his car " , noun , " and drove off with his " , adj , " wife."]
+    ( frequency, quickCheck, Arbitrary(arbitrary) )
 
 monoidAssoc :: (Eq m, Monoid m) =>  m -> m -> m -> Bool
 monoidAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
+
+semigroupAssoc :: (Eq m , Semigroup m) => m -> m -> m -> Bool
+semigroupAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
+
 
 type S = String
 type B = Bool
@@ -27,23 +17,6 @@ monoidLeftIdentity :: (Eq m, Monoid m) => m -> Bool
 monoidLeftIdentity a = (mempty <> a) == a
 monoidRightIdentity :: (Eq m, Monoid m) => m -> Bool
 monoidRightIdentity a = (a <> mempty) == a
-
-data Bull = Fools | Twoo deriving (Eq, Show)
-
-instance Arbitrary Bull where
-    arbitrary = frequency [(1, return Fools), (1, return Twoo)]
-
-instance Semigroup Bull where
-    Twoo <> Fools = Fools
-    Twoo <> Twoo = Twoo
-    Fools <> Fools = Fools
-
-instance Monoid Bull where
-    mempty = Fools
-    mappend _ _ = Fools
-
-type BullMappend =
-    Bull -> Bull -> Bull -> Bool    
 
 data Optional a = Nada | Only a deriving (Eq, Show)
 
@@ -83,9 +56,104 @@ type FirstMappend =
 type FstId =
     First' String -> Bool
 
+data Trivial = Trivial deriving (Eq, Show)
+
+instance Semigroup Trivial where
+    _ <> _ = Trivial
+
+instance Monoid Trivial where
+    mempty = Trivial
+    mappend = (<>)
+
+instance Arbitrary Trivial where
+    arbitrary = return Trivial
+
+type TrivAssoc = Trivial -> Trivial -> Trivial -> Bool
+
+newtype Identity a = Identity a deriving (Eq, Show)
+
+instance Semigroup a => Semigroup (Identity a) where
+    a <> _ = a
+
+instance Arbitrary a => Arbitrary (Identity a) where
+    arbitrary = do
+        a <- arbitrary
+        frequency [(1, return (Identity a))]
+
+
+type IdAssoc = Identity String -> Identity String -> Identity String -> Bool
+
+data Two a b = Two a b deriving (Eq,Show)
+
+instance (Semigroup a, Semigroup b) => Semigroup (Two a b) where
+    Two a b <> Two c d = Two (a <> c) (b <> d)
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        return (Two a b)
+
+type TwoAssoc = Two String String -> Two String String -> Two String String -> Bool
+
+data Three a b c = Three a b c deriving (Eq, Show)
+
+instance (Semigroup a, Semigroup b, Semigroup c) =>  Semigroup (Three a b c) where 
+    Three a b c <> Three d e f = Three (a <> d) (b <> e) (c <> f)
+
+instance (Arbitrary a, Arbitrary b, Arbitrary c) => Arbitrary (Three a b c) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        c <- arbitrary
+        return (Three a b c)
+
+type ThreeAssoc = Three String String String -> Three String String String -> Three String String String -> Bool
+
+newtype BoolConj = BoolConj Bool deriving (Eq, Show)
+
+instance Semigroup BoolConj where
+    BoolConj _ <> BoolConj False = BoolConj False
+    BoolConj False <> BoolConj _ = BoolConj False
+    BoolConj True <> BoolConj True = BoolConj True
+
+instance  Arbitrary BoolConj where
+    arbitrary = do
+        a <- arbitrary
+        return (BoolConj a)
+
+type BoolConjAssoc = BoolConj -> BoolConj -> BoolConj -> Bool
+
+newtype BoolDisj = BoolDisj Bool deriving (Eq, Show)
+
+instance Semigroup BoolDisj where
+    BoolDisj _ <> BoolDisj True = BoolDisj True
+    BoolDisj True <> BoolDisj _ = BoolDisj True
+    BoolDisj False <> BoolDisj False = BoolDisj False
+
+instance Arbitrary BoolDisj where
+    arbitrary = do
+        a <- arbitrary
+        return (BoolDisj a)
+
+type BoolDisjAssoc = BoolDisj -> BoolDisj -> BoolDisj -> Bool
+
+data Or a b = Fst a | Snd b deriving (Eq, Show)
+
+instance (Semigroup a, Semigroup b) => Semigroup (Or a b) where
+    Fst _ <> Snd b = Snd b
+    Fst _ <> Fst b = Fst b
+    Snd a <> Fst _ = Snd a
+    Snd a <> Snd _ = Snd a
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Or a b) where
+    arbitrary = do
+        a <- arbitrary
+        b <- arbitrary
+        frequency [(1, return (Fst a)), (1, return (Snd b))]
+
+type OrAssoc = Or String String -> Or String String -> Or String String -> Bool
 
 main :: IO ()
 main = do
-    quickCheck (monoidAssoc :: FirstMappend)
-    quickCheck (monoidLeftIdentity :: FstId)
-    quickCheck (monoidRightIdentity :: FstId)
+    quickCheck (semigroupAssoc :: OrAssoc)

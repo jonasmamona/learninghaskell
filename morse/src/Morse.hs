@@ -9,6 +9,7 @@ module Morse
     ) where
 
 import qualified Data.Map as M
+import Data.Monoid
 
 type Morse = String
 
