@@ -57,3 +57,62 @@ instance Semigroup (Or a b) where
 
 test :: Or Int Int
 test = Fst 1 <> Snd 2
+
+newtype Combine a b = Combine { unCombine :: (a -> b) }
+
+instance (Show a, Show b) => Show (Combine a b) where
+  show (Combine f) = "Combine " ++ show (f undefined)
+    
+instance Semigroup b => Semigroup (Combine a b) where
+    Combine f <> Combine g = Combine (\n -> f n <> g n)
+    
+f :: Combine Integer (Sum Integer)
+f = Combine $ \n -> Sum (n + 1)
+
+g = Combine $ \n -> Sum (n - 1)
+
+h = unCombine (f <> g) $ 0
+
+newtype Comp a = Comp {unComp :: (a -> a)}
+
+instance Semigroup a => Semigroup (Comp a) where
+    Comp f <> Comp g = Comp (f . g)
+
+data Validation a b = Failure a | Success b deriving (Eq, Show)
+
+instance Semigroup a => Semigroup (Validation a b) where
+    Failure a <> Failure b = Failure (a <> b)
+    Failure a <> Success b = Success b
+    Success a <> Failure b = Success a
+    Success a <> Success _ = Success a
+
+failure :: String -> Validation String Int
+failure = Failure
+
+success :: Int -> Validation String Int
+success = Success
+
+newtype Mem s a = Mem { runMem :: s -> (a,s)}
+
+instance (Show s, Show  a) => Show (Mem s a) where
+    show m = "Mem " ++ show (runMem m undefined)
+
+instance Semigroup a => Semigroup (Mem s a) where
+    Mem f <> Mem g = Mem $ \s -> let (a, s') = f s
+                                     (b, s'') = g s'
+                                 in (a <> b, s'')
+
+instance Monoid a => Monoid (Mem s a) where
+    mempty = Mem $ \s -> (mempty, s)
+    mappend = (<>)
+
+f' = Mem $ \s -> ("hi", s + 1)
+rmzero = runMem mempty 0
+rmleft = runMem (f' <> mempty) 0
+rmright = runMem (mempty <> f') 0
+main = do
+    print $ rmleft
+    print $ rmright
+    print $ (rmzero :: (String, Int))
+    print $ rmleft == runMem f' 0
+    print $ rmright == runMem f' 0

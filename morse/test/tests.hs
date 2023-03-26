@@ -1,7 +1,7 @@
 import Control.Monad
 import Data.Monoid
 import Test.QuickCheck
-    ( frequency, quickCheck, Arbitrary(arbitrary) )
+    ( frequency, quickCheck, Arbitrary(arbitrary), CoArbitrary (coarbitrary) )
 
 monoidAssoc :: (Eq m, Monoid m) =>  m -> m -> m -> Bool
 monoidAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
@@ -117,7 +117,11 @@ instance Semigroup BoolConj where
     BoolConj False <> BoolConj _ = BoolConj False
     BoolConj True <> BoolConj True = BoolConj True
 
-instance  Arbitrary BoolConj where
+instance Monoid BoolConj where
+    mempty = BoolConj True
+    mappend = (<>)
+
+instance Arbitrary BoolConj where
     arbitrary = do
         a <- arbitrary
         return (BoolConj a)
@@ -131,6 +135,10 @@ instance Semigroup BoolDisj where
     BoolDisj True <> BoolDisj _ = BoolDisj True
     BoolDisj False <> BoolDisj False = BoolDisj False
 
+instance Monoid BoolDisj where
+    mempty = BoolDisj False
+    mappend = (<>)
+
 instance Arbitrary BoolDisj where
     arbitrary = do
         a <- arbitrary
@@ -140,7 +148,7 @@ type BoolDisjAssoc = BoolDisj -> BoolDisj -> BoolDisj -> Bool
 
 data Or a b = Fst a | Snd b deriving (Eq, Show)
 
-instance (Semigroup a, Semigroup b) => Semigroup (Or a b) where
+instance Semigroup (Or a b) where
     Fst _ <> Snd b = Snd b
     Fst _ <> Fst b = Fst b
     Snd a <> Fst _ = Snd a
@@ -153,6 +161,18 @@ instance (Arbitrary a, Arbitrary b) => Arbitrary (Or a b) where
         frequency [(1, return (Fst a)), (1, return (Snd b))]
 
 type OrAssoc = Or String String -> Or String String -> Or String String -> Bool
+
+newtype Combine a b = Combine { unCombine :: (a -> b) }
+
+instance Semigroup b => Semigroup (Combine a b) where
+    Combine f <> Combine g = Combine (\n -> f n <> g n)
+
+instance Monoid b => Monoid (Combine a b) where
+    mempty = Combine (\_ -> mempty)
+    mappend = (<>)
+        
+type CombineAssoc = Combine String String -> Combine String String -> Combine String String -> Bool
+
 
 main :: IO ()
 main = do
