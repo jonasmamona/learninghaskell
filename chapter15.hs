@@ -95,7 +95,7 @@ success = Success
 newtype Mem s a = Mem { runMem :: s -> (a,s)}
 
 instance (Show s, Show  a) => Show (Mem s a) where
-    show m = "Mem " ++ show (runMem m undefined)
+    show (Mem f) = "Mem " ++ show (f undefined)
 
 instance Semigroup a => Semigroup (Mem s a) where
     Mem f <> Mem g = Mem $ \s -> let (a, s') = f s
@@ -104,7 +104,13 @@ instance Semigroup a => Semigroup (Mem s a) where
 
 instance Monoid a => Monoid (Mem s a) where
     mempty = Mem $ \s -> (mempty, s)
+    mappend :: Monoid a => Mem s a -> Mem s a -> Mem s a
     mappend = (<>)
+
+memAdd :: Num a => a -> Mem a a
+memAdd n = Mem $ \s -> (n + s, s)
+memMul :: Num a => a -> Mem a a
+memMul n = Mem $ \s -> (n * s, s)
 
 f' = Mem $ \s -> ("hi", s + 1)
 rmzero = runMem mempty 0
