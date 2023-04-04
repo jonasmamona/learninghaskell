@@ -158,4 +158,3 @@ getInt :: IO Int
 getInt =  fmap read getLine
 
 type Nat f g = forall a . f a -> g a
-
