@@ -1,5 +1,6 @@
 module Chapter16 where
 import Data.List
+import Text.Read (readMaybe)
 
 data FixMePls a = FixMe | Pls a deriving (Eq, Show)
 
@@ -131,7 +132,7 @@ manyPossiblyIntsWithNothing = intersperse LolNope manyPossiblyInts
 
 incIfRight :: Num a => Either e a -> Either e a
 incIfRight (Left e) = Left e
-incIfRight (Right a ) = Right $ a + 1
+incIfRight (Right a) = Right $ a + 1
 
 showIfRight :: Show a => Either e a -> Either e String
 showIfRight (Left e) = Left e
@@ -142,3 +143,19 @@ data Sum a b = First a | Second b deriving (Eq, Show)
 instance Functor (Sum a) where
   fmap _ (First a) = First a
   fmap f (Second b) = Second (f b)
+
+newtype Constant a b = Constant { getConstant  :: a } deriving (Eq, Show)
+
+instance Functor (Constant a) where
+  fmap _ (Constant a) = Constant a
+
+data Wrap f a = Wrap (f a) deriving (Eq, Show)
+
+instance Functor f => Functor (Wrap f) where
+  fmap f (Wrap fa) = Wrap (fmap f fa)
+
+getInt :: IO Int
+getInt =  fmap read getLine
+
+type Nat f g = forall a . f a -> g a
+
