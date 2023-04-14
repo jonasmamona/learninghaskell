@@ -187,6 +187,39 @@ z2 = zl' $ Cons 1 (Cons 2 (Cons 3 Nil))
 
 test = z' <*> z2
 
+data Errors = DividedByZero | StackOverflow | MooglesChewedWires deriving (Eq, Show)
+
+data Validation err a = Failure err | Success a deriving (Eq, Show)
+
+instance Semigroup e => Semigroup (Validation e a) where
+  (<>) (Failure e) (Failure e') = Failure $ e <> e'
+  (<>) (Failure e) _ = Failure e
+  (<>) _ (Failure e) = Failure e
+  (<>) (Success a) (Success a') = Success a
+
+instance Monoid e => Monoid (Validation e a) where
+  mempty = Failure mempty
+
+instance Functor (Validation e) where
+  fmap _ (Failure e) = Failure e
+  fmap f (Success a) = Success (f a)
+
+instance Monoid e => Applicative (Validation e) where
+  pure = Success
+  (<*>) (Success f) (Success a) = Success $ f a
+  (<*>) (Failure f) (Failure e) = Failure $ f <> e
+  (<*>) _ (Failure e) = Failure e
+  (<*>) (Failure f) _ = Failure f
+
+success :: Validation String Integer
+success = Success (+1) <*> Success 1
+
+failure = Success (+1) <*> Failure [StackOverflow]
+
+failure' = Failure [StackOverflow] <*> Success (+1)
+
+failures = Failure [MooglesChewedWires] <*> Failure [StackOverflow]
+
 main :: IO ()
 main = do
   print test
