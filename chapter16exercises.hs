@@ -54,6 +54,7 @@ instance Functor (K a) where
 newtype Flip f a b = Flip (f b a) deriving (Eq, Show)
 
 instance Functor (Flip K a) where
+  fmap :: forall k (a1 :: k) a2 b. (a2 -> b) -> Flip K a1 a2 -> Flip K a1 b
   fmap f (Flip (K b)) = Flip $ K (f b)
 
 data EvilGoateeConst a b = GoatyConst b deriving (Eq, Show)
@@ -95,7 +96,6 @@ instance Functor GoatLord where
   fmap f (MoreGoats a b c) = MoreGoats (fmap f a) (fmap f b) (fmap f c)
 
 data TalkToMe a = Halt | Print String a | Read (String -> a)
-
 
 instance Functor TalkToMe where
   fmap _ Halt = Halt

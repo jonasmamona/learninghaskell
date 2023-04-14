@@ -2,23 +2,32 @@ import Control.Monad
 import Data.Monoid
 import Test.QuickCheck
     ( frequency, quickCheck, Arbitrary(arbitrary), CoArbitrary (coarbitrary) )
+import Test.QuickCheck.Checkers
+import Test.QuickCheck.Classes
 
-functorIdentity :: (Functor f, Eq (f a)) => f a -> Bool
-functorIdentity f = fmap id f == f
+data Bull = Fools | Twoo deriving (Eq, Show)
 
-functorCompose :: (Eq (f c), Functor f) => (a -> b) -> (b -> c) -> f a -> Bool
-functorCompose f g x = (fmap g (fmap f x)) == (fmap (g . f) x)
+instance Arbitrary Bull where
+    arbitrary = frequency [(1, return Fools), (1, return Twoo)]
 
-functorCompose' :: (Eq (f c), Functor f) => (a -> b) -> (b -> c) -> f a -> Bool
-functorCompose' f g x = (fmap (g . f) x) == (fmap g . fmap f $ x)
+instance Arbitrary Bull where
+    arbitrary = frequency [(1, return Fools), (1, return Twoo)]
 
-newtype Identity a = Identity a deriving (Eq, Show)
+instance Semigroup Bull where
+    (<>) _ _ = Fools
 
-instance Functor Identity where
-  fmap f (Identity a) = Identity (f a)
+instance Monoid Bull where
+    mempty = Fools
+    mappend = (<>)
 
-data Pair a = Pair a a deriving (Eq, Show)
+instance EqProp Bull where
+    (=-=) = eq
 
-f :: (Eq a) => [Identity a] -> Bool
-f = functorIdentity
-
+main :: IO ()
+main = do
+    quickCheck (monoidAssoc :: Bull -> Bull -> Bull -> Bool)
+    quickCheck (monoidLeftIdentity :: Bull -> Bool)
+    quickCheck (monoidRightIdentity :: Bull -> Bool)
+    quickCheck (semigroupAssoc :: Bull -> Bull -> Bull -> Bool)
+    quickBatch (monoid Twoo)
+    quickBatch (semigroup Twoo)

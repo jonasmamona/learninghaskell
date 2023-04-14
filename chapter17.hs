@@ -110,13 +110,15 @@ noNegative n
   | otherwise = Nothing
 
 cowFromString :: String -> Int -> Int -> Maybe Cow
-cowFromString name age weight = Cow <$> noEmpty name 
-                                    <*> noNegative age
-                                    <*> noNegative weight
+cowFromString name age weight =
+  Cow
+    <$> noEmpty name
+    <*> noNegative age
+    <*> noNegative weight
 
 fixerUpper1 = const <$> Just "Hello" <*> pure "World"
 
-fixerUpper2 = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> pure [1,2,3]
+fixerUpper2 = (,,,) <$> Just 90 <*> Just 10 <*> Just "Tierness" <*> pure [1, 2, 3]
 
 data List a = Nil | Cons a (List a) deriving (Eq, Show)
 
@@ -137,7 +139,11 @@ concat' :: List (List a) -> List a
 concat' = fold append Nil
 
 flatMap :: (a -> List b) -> List a -> List b
-flatMap f = fold (append . f) Nil 
+flatMap f = fold (append . f) Nil
+
+length' :: List a -> Int
+length' Nil = 0
+length' (Cons a as) = 1 + length' as
 
 instance Applicative List where
   pure x = Cons x Nil
@@ -145,5 +151,42 @@ instance Applicative List where
   (<*>) _ Nil = Nil
   (<*>) (Cons a as) bs = append (a <$> bs) (as <*> bs)
 
-list1 = Cons (+1) (Cons (*2) Nil)
+list1 = Cons (+ 1) (Cons (* 2) Nil)
+
 list2 = Cons 1 (Cons 2 Nil)
+
+take' :: Int -> List a -> List a
+take' _ Nil = Nil
+take' 0 _ = Nil
+take' howMany (Cons a as) =
+  if howMany > 0
+    then Cons a (take' (howMany - 1) as)
+    else Nil
+
+extractList :: ZipList' a -> List a
+extractList (ZipList' Nil) = Nil
+extractList (ZipList' (Cons a as)) = Cons a as
+
+newtype ZipList' a = ZipList' (List a) deriving (Eq, Show)
+
+instance Functor ZipList' where
+  fmap f (ZipList' xs) = ZipList' $ fmap f xs
+
+instance Applicative ZipList' where
+  pure x = ZipList' (Cons x Nil)
+  (<*>) (ZipList' (Cons a as)) (ZipList' (Cons b bs)) = ZipList' (Cons (a b) (extractList (ZipList' as <*> ZipList' bs)))
+  (<*>) (ZipList' Nil) _ = ZipList' Nil 
+  (<*>) _ (ZipList' Nil) = ZipList' Nil 
+
+zl' :: List a -> ZipList' a
+zl' = ZipList'
+
+z' = zl' $ Cons (+ 9) (Cons (* 2) (Cons (+ 8) Nil))
+
+z2 = zl' $ Cons 1 (Cons 2 (Cons 3 Nil))
+
+test = z' <*> z2
+
+main :: IO ()
+main = do
+  print test

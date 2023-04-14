@@ -62,3 +62,4 @@ tests:
     - morse
     - containers
     - QuickCheck
+    - checkers
