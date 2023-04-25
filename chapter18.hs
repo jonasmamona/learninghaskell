@@ -45,6 +45,23 @@ mkSphericalCow n a w = do
   weighty <- noNegative w
   weightCheck (Cow namae agey weighty)
 
+data Sum a b = First a | Second b deriving (Eq, Show)
+
+instance Functor (Sum a) where
+  fmap _ (First a) = First a
+  fmap f (Second b) = Second $ f b 
+
+instance Applicative (Sum a) where
+  pure = Second
+  (<*>) (First b) _ = First b
+  (<*>) _ (First b) = First b
+  (<*>) (Second b) (Second c) = Second $ b c
+
+instance Monad (Sum a) where
+  return = pure
+  (>>=) (Second b) f = f b
+  (>>=) (First b) _ = First b
+
 type Founded = Int
 
 type Coders = Int
@@ -53,24 +70,24 @@ data SoftwareShop = Shop {founded :: Founded, programmers :: Coders} deriving (E
 
 data FoundedError = NegativeYears Founded | TooManyYears Founded | NegativeCoders Coders | TooManyCoders Coders | TooManyCodersForYears Founded Coders deriving (Eq, Show)
 
-validateFounded :: Int -> Either FoundedError Founded
+validateFounded :: Int -> Sum FoundedError Founded
 validateFounded n
-    | n < 0 = Left $ NegativeYears n
-    | n > 500 = Left $ TooManyYears n
-    | otherwise = Right n
+    | n < 0 = First $ NegativeYears n
+    | n > 500 = First $ TooManyYears n
+    | otherwise = Second n
 
-validateCoders :: Int -> Either FoundedError Coders
+validateCoders :: Int -> Sum FoundedError Coders
 validateCoders n
-    | n < 0 = Left $ NegativeCoders n
-    | n > 500 = Left $ TooManyCoders n
-    | otherwise = Right n
+    | n < 0 = First $ NegativeCoders n
+    | n > 500 = First $ TooManyCoders n
+    | otherwise = Second n
 
-mkSoftware :: Int -> Int -> Either FoundedError SoftwareShop
+mkSoftware :: Int -> Int -> Sum FoundedError SoftwareShop
 mkSoftware years coders = do
     founded <- validateFounded years
     programmers <- validateCoders coders
     if programmers > div founded 10
         then 
-            Left $ TooManyCodersForYears founded programmers
+            First $ TooManyCodersForYears founded programmers
         else 
-            Right $ Shop founded programmers
+            Second $ Shop founded programmers
