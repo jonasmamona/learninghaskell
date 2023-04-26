@@ -42,12 +42,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\bin"
-libdir     = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0-7XBJlT1nqezJHhmdLexBV4-hangman"
-dynlibdir  = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7"
-datadir    = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\share\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0"
-libexecdir = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\libexec\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0"
-sysconfdir = "Z:\\Documents\\GitHub\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\etc"
+bindir     = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\bin"
+libdir     = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0-7XBJlT1nqezJHhmdLexBV4-hangman"
+dynlibdir  = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\lib\\x86_64-windows-ghc-9.2.7"
+datadir    = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\share\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0"
+libexecdir = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\libexec\\x86_64-windows-ghc-9.2.7\\hangman-0.1.0.0"
+sysconfdir = "C:\\Users\\jonas\\Documents\\Github\\learninghaskell\\hangman\\.stack-work\\install\\eeb48a36\\etc"
 
 getBinDir     = catchIO (getEnv "hangman_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "hangman_libdir")     (\_ -> return libdir)

@@ -79,7 +79,7 @@ handleGuess puzzle@(Puzzle _ _ _ guesses) guess = do
 
 gameOver :: Puzzle -> IO ()
 gameOver (Puzzle wordToGuess _ _ guessCount) =
-  if guessCount > 3
+  if guessCount > 10
     then do
       putStrLn "You lose!"
       putStrLn $ "The word was " ++ wordToGuess
