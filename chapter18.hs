@@ -1,6 +1,6 @@
 module Chapter18 where
 
-import Control.Monad (join)
+import Control.Monad (join, (>=>))
 
 bind :: Monad m => (a -> m b) -> m a -> m b
 bind f a = join $ fmap f a
@@ -91,3 +91,24 @@ mkSoftware years coders = do
             First $ TooManyCodersForYears founded programmers
         else 
             Second $ Shop founded programmers
+
+sayHi :: String  -> IO String 
+sayHi greeting = do 
+  putStrLn greeting
+  getLine
+
+readM :: Read a => String -> IO a
+readM = return . read
+
+getAge :: String -> IO Int
+getAge = sayHi >=> readM
+
+askForAge :: IO Int
+askForAge  = getAge "How old are you?"
+
+sayHi' :: IO ()
+sayHi' = putStrLn "wazzup"
+
+getAge' = do
+  putStrLn greeting
+  return getLine
