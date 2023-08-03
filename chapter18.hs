@@ -49,7 +49,7 @@ data Sum a b = First a | Second b deriving (Eq, Show)
 
 instance Functor (Sum a) where
   fmap _ (First a) = First a
-  fmap f (Second b) = Second $ f b 
+  fmap f (Second b) = Second $ f b
 
 instance Applicative (Sum a) where
   pure = Second
@@ -72,28 +72,44 @@ data FoundedError = NegativeYears Founded | TooManyYears Founded | NegativeCoder
 
 validateFounded :: Int -> Sum FoundedError Founded
 validateFounded n
-    | n < 0 = First $ NegativeYears n
-    | n > 500 = First $ TooManyYears n
-    | otherwise = Second n
+  | n < 0 = First $ NegativeYears n
+  | n > 500 = First $ TooManyYears n
+  | otherwise = Second n
 
 validateCoders :: Int -> Sum FoundedError Coders
 validateCoders n
-    | n < 0 = First $ NegativeCoders n
-    | n > 500 = First $ TooManyCoders n
-    | otherwise = Second n
+  | n < 0 = First $ NegativeCoders n
+  | n > 500 = First $ TooManyCoders n
+  | otherwise = Second n
 
 mkSoftware :: Int -> Int -> Sum FoundedError SoftwareShop
 mkSoftware years coders = do
-    founded <- validateFounded years
-    programmers <- validateCoders coders
-    if programmers > div founded 10
-        then 
-            First $ TooManyCodersForYears founded programmers
-        else 
-            Second $ Shop founded programmers
+  founded <- validateFounded years
+  programmers <- validateCoders coders
+  if programmers > div founded 10
+    then First $ TooManyCodersForYears founded programmers
+    else Second $ Shop founded programmers
 
-sayHi :: String  -> IO String 
-sayHi greeting = do 
+data CountMe a = CountMe Integer a deriving (Eq, Show)
+
+instance Functor CountMe where
+  fmap f (CountMe i a) = CountMe (i) (f a)
+
+instance Applicative CountMe where
+  pure = CountMe 0
+  CountMe n f <*> CountMe n' a = CountMe (n + n') (f a)
+
+instance Monad CountMe where
+  return = pure
+  (CountMe count1 x) >>= f =
+    let CountMe count2 y = f x
+     in CountMe (count1 + count2) y
+
+addOne :: Int -> CountMe Int
+addOne x = CountMe 1 (x + 1)
+
+sayHi :: String -> IO String
+sayHi greeting = do
   putStrLn greeting
   getLine
 
@@ -104,11 +120,4 @@ getAge :: String -> IO Int
 getAge = sayHi >=> readM
 
 askForAge :: IO Int
-askForAge  = getAge "How old are you?"
-
-sayHi' :: IO ()
-sayHi' = putStrLn "wazzup"
-
-getAge' = do
-  putStrLn greeting
-  return getLine
+askForAge = getAge "Hello! How old are you?"
