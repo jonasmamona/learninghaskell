@@ -72,3 +72,22 @@ testF = Cons (+1) (Cons (+2) Nil)
 
 wazzup = [1,2]
 wazzupf = [(+1), (+2)]
+
+j :: Monad m => m (m a) -> m a
+j a = a >>= id
+
+l1 :: Monad m => (a -> b) -> m a -> m b
+l1 f a = a >>= return . f
+
+l2 :: Monad m => (a -> b -> c) -> m a -> m b -> m c
+l2 f a b = a >>= (\x -> b >>= (\y -> return $ f x y))
+
+a :: Monad m => m a -> m (a -> b) -> m b
+a x f = x >>= (\x -> f >>= (\g -> return $ g x))
+
+meh :: Monad m => [a] -> (a -> m b) -> m [b]
+meh [] _ = return []
+meh (x:xs) f = f x >>= (\x -> meh xs f >>= (\y -> return $ x : y))
+
+flipType :: (Monad m) => [m a] -> m [a]
+flipType a = meh a id
