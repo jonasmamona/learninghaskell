@@ -178,3 +178,5 @@ instance Traversable Tree where
   traverse f Empty = pure Empty
   traverse f (Leaf a) = Leaf <$> f a
   traverse f (Node x y z) = Node <$> traverse f x <*> f y <*> traverse f z
+
+  
