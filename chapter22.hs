@@ -1,17 +1,16 @@
-
 {-# LANGUAGE InstanceSigs #-}
 
 module Chapter22 where
 
 import Control.Applicative
-import Data.Char
 import Control.Monad.Reader
+import Data.Char
 
 boop :: Num a => a -> a
-boop = (*2)
+boop = (* 2)
 
 doop :: Num a => a -> a
-doop = (+10)
+doop = (+ 10)
 
 bip :: Num a => a -> a
 bip = boop . doop
@@ -55,7 +54,7 @@ tupledMonad = do
   b <- rev
   return (a, b)
 
-tupledMonadWithBind:: [Char] -> ([Char], [Char])
+tupledMonadWithBind :: [Char] -> ([Char], [Char])
 tupledMonadWithBind = cap >>= (\x -> rev >>= (\y -> return (x, y)))
 
 myAsk :: ReaderT (m a) m a
@@ -80,9 +79,9 @@ newtype DogName = DogName String deriving (Eq, Show)
 
 newtype Address = Address String deriving (Eq, Show)
 
-data Person = Person { humanName :: HumanName , dogName :: DogName , address :: Address }deriving (Eq, Show)
+data Person = Person {humanName :: HumanName, dogName :: DogName, address :: Address} deriving (Eq, Show)
 
-data Dog = Dog { dogsName :: DogName, dogsAddress :: Address} deriving (Eq, Show)
+data Dog = Dog {dogsName :: DogName, dogsAddress :: Address} deriving (Eq, Show)
 
 pers :: Person
 pers = Person (HumanName "Big Bird") (DogName "Barkley") (Address "Sesame Street")
@@ -113,3 +112,27 @@ instance Applicative (MyReader r) where
 
   (<*>) :: MyReader r (a -> b) -> MyReader r a -> MyReader r b
   (MyReader rab) <*> (MyReader ra) = MyReader $ \r -> rab r (ra r)
+
+foo :: (Functor f, Num a) => f a -> f a
+foo = fmap (+ 1)
+
+bar :: Foldable f => t -> f a -> (t, Int)
+bar r t = (r, length t)
+
+froot :: Num a => [a] -> ([a], Int)
+froot r = (map (+1) r, length r)
+
+barOne :: Foldable t => t a -> (t a, Int)
+barOne r = (r, length r)
+
+barPlus :: (Functor t, Num a, Foldable t) => t a -> (t a, Int)
+barPlus r = (foo r, length r)
+
+frooty :: (Foldable f, Functor f, Num a) => f a -> (f a, Int)
+frooty r = bar (foo r) r
+
+frooty' :: Num a => [a] -> ([a], Int)
+frooty' = \r -> bar (foo r) r
+
+fooBind :: (t1 -> t2) -> (t2 -> t1 -> t3) -> t1 -> t3
+fooBind m k = \r -> k (m r) r
