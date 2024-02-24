@@ -5,6 +5,7 @@ module Chapter22 where
 import Control.Applicative
 import Control.Monad.Reader
 import Data.Char
+import Arith2 (add)
 
 boop :: Num a => a -> a
 boop = (* 2)
@@ -83,24 +84,6 @@ data Person = Person {humanName :: HumanName, dogName :: DogName, address :: Add
 
 data Dog = Dog {dogsName :: DogName, dogsAddress :: Address} deriving (Eq, Show)
 
-pers :: Person
-pers = Person (HumanName "Big Bird") (DogName "Barkley") (Address "Sesame Street")
-
-chris :: Person
-chris = Person (HumanName "Chris Allen") (DogName "Papu") (Address "Austin")
-
-getDog :: Person -> Dog
-getDog p = Dog (dogName p) (address p)
-
-getDogR :: Person -> Dog
-getDogR = Dog <$> dogName <*> address
-
-myLiftA2 :: Applicative f => (a -> b -> c) -> f a -> f b -> f c
-myLiftA2 a b c = a <$> b <*> c
-
-asks :: (r -> m a) -> ReaderT r m a
-asks = ReaderT
-
 newtype MyReader r a = MyReader {runMyReader :: r -> a}
 
 instance Functor (MyReader r) where
@@ -113,26 +96,22 @@ instance Applicative (MyReader r) where
   (<*>) :: MyReader r (a -> b) -> MyReader r a -> MyReader r b
   (MyReader rab) <*> (MyReader ra) = MyReader $ \r -> rab r (ra r)
 
-foo :: (Functor f, Num a) => f a -> f a
-foo = fmap (+ 1)
+instance Monad (MyReader r) where
+  return = pure
+  (MyReader ra) >>= aRb = MyReader $ \r -> runMyReader (aRb (ra r)) r
 
-bar :: Foldable f => t -> f a -> (t, Int)
-bar r t = (r, length t)
+pers :: Person
+pers = Person (HumanName "Big Bird") (DogName "Barkley") (Address "Sesame Street")
 
-froot :: Num a => [a] -> ([a], Int)
-froot r = (map (+1) r, length r)
+chris :: Person
+chris = Person (HumanName "Chris Allen") (DogName "Papu") (Address "Austin")
 
-barOne :: Foldable t => t a -> (t a, Int)
-barOne r = (r, length r)
+getDogMyReader :: Person -> Dog
+getDogMyReader = runMyReader $ do
+  dogName <- MyReader dogName
+  addy <- MyReader address
+  return $ Dog dogName addy
 
-barPlus :: (Functor t, Num a, Foldable t) => t a -> (t a, Int)
-barPlus r = (foo r, length r)
+getDogMyReader' :: MyReader Person Dog
+getDogMyReader' = MyReader $ \person -> Dog (dogName person) (address person)
 
-frooty :: (Foldable f, Functor f, Num a) => f a -> (f a, Int)
-frooty r = bar (foo r) r
-
-frooty' :: Num a => [a] -> ([a], Int)
-frooty' = \r -> bar (foo r) r
-
-fooBind :: (t1 -> t2) -> (t2 -> t1 -> t3) -> t1 -> t3
-fooBind m k = \r -> k (m r) r
