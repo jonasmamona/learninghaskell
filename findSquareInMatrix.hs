@@ -1,4 +1,4 @@
-module Testing where
+module FindSquareInMatrix where
 
 vowels :: [Char]
 vowels = ['a', 'e', 'i', 'o','u']
